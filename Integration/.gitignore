@@ -1,0 +1,66 @@
+# Byte-compiled / cache artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.eggs/
+
+# Virtual environments and Python tooling
+.env
+.env.*
+.venv/
+venv/
+env/
+.Python
+pip-wheel-metadata/
+pip-log.txt
+
+# IDE/editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Logs
+Logs/
+**/Logs/
+*.log
+
+# Local data and generated assets
+data/
+**/data/
+audio_files/
+**/audio_files/
+*.wav
+*.mp3
+*.flac
+
+# Model checkpoints and large artifacts
+*.pt
+*.bin
+*.ckpt
+*.safetensors
+checkpoint-*/
+trainer_state.json
+optimizer.pt
+rng_state.pth
+scheduler.pt
+
+# Streamlit caches and misc
+.streamlit/
+*.pickle
+
+# Node / web build outputs
+node_modules/
+dist/
+build/
+
+# Project-specific paths
+Learning\ Platform\ -\ Test\ Generation/backend/
+**/Emotional\ Chatbot\ Dataset/

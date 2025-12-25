@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotional Support - Student Learning Platform</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <span class="emoji">💭</span>
+                <h1>Emotional Support</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <span id="userName">Student</span>
+                </div>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode"></button>
+                <button id="backBtn" class="btn btn-outline">
+                    <span>←</span>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+
+        <!-- Emotional Support Chat -->
+        <div class="card" style="max-width: 1000px; margin: 0 auto; height: calc(100vh - 200px); display: flex; flex-direction: column;">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span class="card-icon">💬</span>
+                    I'm here to listen and support you
+                </h2>
+            </div>
+
+            <div class="alert alert-info">
+                <span>🤗</span>
+                <span>Share what's on your mind. This is a safe space for you to express your feelings.</span>
+            </div>
+
+            <div class="chat-container" style="flex: 1;">
+                <div class="chat-messages" id="emotionalChatMessages">
+                    <div class="message assistant">
+                        <div class="message-avatar">💝</div>
+                        <div class="message-content">
+                            Hi there! I'm here to provide emotional support. How are you feeling today? Feel free to share anything that's on your mind.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input 
+                        type="text" 
+                        id="emotionalChatInput" 
+                        class="chat-input" 
+                        placeholder="Share your feelings..."
+                    >
+                    <button id="emotionalSendBtn" class="send-btn">
+                        <span>📤</span>
+                        Send
+                    </button>
+                    <button id="emotionalClearBtn" class="btn btn-outline">
+                        <span>🧹</span>
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Helpful Tips Card -->
+        <div class="card" style="max-width: 1000px; margin: 25px auto;">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <span class="card-icon">💡</span>
+                    Helpful Tips for Emotional Well-being
+                </h3>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div class="stat-card">
+                    <div class="stat-icon">🧘</div>
+                    <div class="stat-label">Take Deep Breaths</div>
+                    <p style="font-size: 12px; color: var(--text-medium); margin-top: 8px;">
+                        Breathe in for 4 counts, hold for 4, breathe out for 4
+                    </p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🎨</div>
+                    <div class="stat-label">Creative Expression</div>
+                    <p style="font-size: 12px; color: var(--text-medium); margin-top: 8px;">
+                        Draw, write, or create something that expresses how you feel
+                    </p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🤝</div>
+                    <div class="stat-label">Talk to Someone</div>
+                    <p style="font-size: 12px; color: var(--text-medium); margin-top: 8px;">
+                        Share your feelings with a trusted friend or family member
+                    </p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">🌟</div>
+                    <div class="stat-label">Practice Gratitude</div>
+                    <p style="font-size: 12px; color: var(--text-medium); margin-top: 8px;">
+                        Think of 3 things you're grateful for today
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Load user data
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        if (userData.name) {
+            document.getElementById('userName').textContent = userData.name;
+        }
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', function() {
+            window.location.href = '/dashboard';
+        });
+
+        // Emotional Chat functionality
+        const chatMessages = document.getElementById('emotionalChatMessages');
+        const chatInput = document.getElementById('emotionalChatInput');
+        const sendBtn = document.getElementById('emotionalSendBtn');
+
+        let emotionalChatHistory = JSON.parse(localStorage.getItem('emotionalChatHistory') || '[]');
+
+        // Load previous messages
+        emotionalChatHistory.forEach(msg => {
+            if (msg.role !== 'system') {
+                addMessage(msg.role, msg.content, msg.emotion);
+            }
+        });
+
+        function addMessage(role, content, emotion = null, audioUrl = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = role === 'user' ? '👤' : '💝';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            if (emotion) {
+                const emotionTag = document.createElement('div');
+                emotionTag.className = 'emotion-tag';
+                emotionTag.innerHTML = `<strong>Emotion:</strong> ${emotion.primary_emotion} (${Math.round(emotion.confidence * 100)}% confidence)`;
+                messageContent.appendChild(emotionTag);
+            }
+            if (role === 'assistant' && audioUrl) {
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                audio.src = audioUrl;
+                audio.style.display = 'block';
+                audio.style.marginTop = '8px';
+                messageContent.appendChild(audio);
+            }
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendEmotionalMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage('user', message);
+            
+            chatInput.value = '';
+            sendBtn.disabled = true;
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">💝</div>
+                <div class="message-content">
+                    <div class="spinner" style="width: 20px; height: 20px; margin: 0;"></div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/api/emotional-support', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message,
+                        history: emotionalChatHistory
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove typing indicator
+                document.getElementById('typing-indicator')?.remove();
+                
+                if (data.success) {
+                    // Update the last user message with emotion
+                    if (data.emotion) {
+                        const lastUserMsg = Array.from(chatMessages.children)
+                            .filter(el => el.classList.contains('user'))
+                            .pop();
+                        if (lastUserMsg) {
+                            const content = lastUserMsg.querySelector('.message-content');
+                            const emotionTag = document.createElement('div');
+                            emotionTag.className = 'emotion-tag';
+                            emotionTag.innerHTML = `<strong>Detected:</strong> ${data.emotion.primary_emotion} (${Math.round(data.emotion.confidence * 100)}%)`;
+                            content.appendChild(emotionTag);
+                        }
+                    }
+                    
+                    // Add assistant response (with audio if available)
+                    addMessage('assistant', data.response, null, data.audio || null);
+                    
+                    // Update history
+                    emotionalChatHistory.push({ 
+                        role: 'user', 
+                        content: message,
+                        emotion: data.emotion 
+                    });
+                    emotionalChatHistory.push({ 
+                        role: 'assistant', 
+                        content: data.response 
+                    });
+                    
+                    // Save to localStorage
+                    localStorage.setItem('emotionalChatHistory', JSON.stringify(emotionalChatHistory));
+                } else {
+                    addMessage('assistant', 'I\'m here for you. Could you tell me more about how you\'re feeling?');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('typing-indicator')?.remove();
+                addMessage('assistant', 'I\'m having trouble connecting right now, but I\'m here to listen. Please try again.');
+            } finally {
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendEmotionalMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendEmotionalMessage();
+            }
+        });
+
+        // Focus on input
+        chatInput.focus();
+
+        // Clear emotional chat
+        document.getElementById('emotionalClearBtn').addEventListener('click', function(){
+            emotionalChatMessages.innerHTML = '';
+            emotionalChatHistory = [];
+            localStorage.removeItem('emotionalChatHistory');
+        });
+
+    </script>
+</body>
+</html>

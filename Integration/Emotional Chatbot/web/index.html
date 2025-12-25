@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Educational Support Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="brand">
+          <span class="logo">🎓</span>
+          <h1>Educational Support Chatbot</h1>
+        </div>
+        <button id="themeToggle" class="ghost-btn" aria-label="Toggle dark mode">🌙 Dark</button>
+      </header>
+      <p class="subtext">Ask about schoolwork or share how you're feeling about learning.</p>
+
+      <div id="messages" class="messages"></div>
+
+      <div class="input-row">
+        <input id="input" type="text" placeholder="Type your question or feeling…" />
+        <button id="send">Send</button>
+      </div>
+
+      <hr style="margin: 24px 0; opacity: 0.2;" />
+
+      <section>
+        <h2 style="margin: 0 0 8px; font-size: 18px;">🔍 Learning Resources</h2>
+        <p class="subtext">Find kid-friendly links by grade and subject.</p>
+        <form id="resForm" class="input-row" style="gap: 8px; flex-wrap: wrap;">
+          <select id="resGrade">
+            <option>Grade 1</option>
+            <option>Grade 2</option>
+            <option>Grade 3</option>
+            <option>Grade 4</option>
+            <option>Grade 5</option>
+          </select>
+          <select id="resSubject">
+            <option>English</option>
+            <option>Maths</option>
+            <option>Science</option>
+          </select>
+          <button type="submit" class="ghost-btn">Search Resources</button>
+        </form>
+        <div id="resResults" style="margin-top: 12px;"></div>
+      </section>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

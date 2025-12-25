@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning Platform</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎓 Learning Platform</h1>
+      <p class="subtitle">Ask academic questions and find learning resources.</p>
+    </header>
+
+    <main class="grid">
+      <!-- Left: Chat -->
+      <section class="panel">
+        <h2>💬 Academic Chat Assistant</h2>
+        <p class="hint">Ask me anything about your studies!</p>
+
+        <div id="chat">
+          <div id="messages"></div>
+          <form id="chat-form">
+            <input id="chat-input" type="text" placeholder="Type your question and press Enter…" autocomplete="off" />
+            <button type="submit">Send</button>
+            <button id="clear-btn" type="button">Clear</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right: Resources -->
+      <section class="panel">
+        <h2>🔍 Learning Resources</h2>
+        <p class="hint">Find educational materials for your subjects</p>
+
+        <form id="search-form">
+          <div class="form-row">
+            <label for="grade">Grade</label>
+            <select id="grade">
+              {% for g in grades %}
+              <option value="{{g}}">{{g}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="subject">Subject</label>
+            <select id="subject">
+              {% for s in subjects %}
+              <option value="{{s}}">{{s}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="primary">Search Resources</button>
+        </form>
+
+        <div id="results"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

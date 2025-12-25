@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Dashboard - Student Learning Platform</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <span class="emoji">🎓</span>
+                <h1>Learning Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <span id="userName">Student</span>
+                </div>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode"></button>
+            </div>
+        </div>
+
+        <!-- Test Results Summary (if available) -->
+        <div id="testResultsSummary" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="card-icon">📊</span>
+                        Your Latest Test Results
+                    </h2>
+                    <button id="toggleResults" class="btn btn-outline">Show Details</button>
+                </div>
+                <div id="resultsContent" class="hidden">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">⭐</div>
+                            <div class="stat-value" id="scoreDisplay">0%</div>
+                            <div class="stat-label">Overall Score</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-value" id="correctDisplay">0</div>
+                            <div class="stat-label">Correct Answers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📝</div>
+                            <div class="stat-value" id="totalDisplay">0</div>
+                            <div class="stat-label">Total Questions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px;">
+            <!-- Academic Chatbot Section -->
+            <div>
+                <div class="card" style="height: calc(100vh - 250px); display: flex; flex-direction: column;">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span class="card-icon">💬</span>
+                            Academic Chatbot
+                        </h2>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <span>🤖</span>
+                        <span>Ask me anything about your studies! I'm here to help you learn.</span>
+                    </div>
+
+                    <div class="chat-container" style="flex: 1;">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message assistant">
+                                <div class="message-avatar">🤖</div>
+                                <div class="message-content">
+                                    Hello! I'm your academic assistant. How can I help you today?
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-container">
+                            <input 
+                                type="text" 
+                                id="chatInput" 
+                                class="chat-input" 
+                                placeholder="Type your question here..."
+                            >
+                            <button id="sendBtn" class="send-btn">
+                                <span>📤</span>
+                                Send
+                            </button>
+                            <button id="clearBtn" class="btn btn-outline">
+                                <span>🧹</span>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Learning Resources (Dynamic) -->
+                <div class="card resources-card">
+                    <h3 class="card-title mb-20">
+                        <span class="card-icon">🔍</span>
+                        Learning Resources
+                    </h3>
+                    <form id="resForm" class="form-grid" style="grid-template-columns: 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label class="form-label" for="resGrade"><span>📚</span> Grade</label>
+                            <select id="resGrade" class="form-select">
+                                <option>Grade 1</option>
+                                <option>Grade 2</option>
+                                <option>Grade 3</option>
+                                <option>Grade 4</option>
+                                <option>Grade 5</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="resSubject"><span>📘</span> Subject</label>
+                            <select id="resSubject" class="form-select">
+                                <option>English</option>
+                                <option>Maths</option>
+                                <option>Science</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span>🔎</span> Search Resources
+                        </button>
+                    </form>
+                    <div id="resResults" style="margin-top: 12px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Emotional Support Button -->
+    <button id="emotionalSupportBtn" class="floating-btn">
+        <span>💭</span>
+        Need Emotional Support?
+    </button>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Load user data
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        if (userData.name) {
+            document.getElementById('userName').textContent = userData.name;
+        }
+
+        // Load evaluation data
+        const evaluation = JSON.parse(localStorage.getItem('evaluation') || 'null');
+        if (evaluation) {
+            document.getElementById('testResultsSummary').classList.remove('hidden');
+            document.getElementById('scoreDisplay').textContent = evaluation.accuracy.overall_accuracy + '%';
+            document.getElementById('correctDisplay').textContent = evaluation.accuracy.total_correct;
+            document.getElementById('totalDisplay').textContent = evaluation.accuracy.total_questions;
+        }
+
+        // Toggle results
+        document.getElementById('toggleResults')?.addEventListener('click', function() {
+            const content = document.getElementById('resultsContent');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                this.textContent = 'Hide Details';
+            } else {
+                content.classList.add('hidden');
+                this.textContent = 'Show Details';
+            }
+        });
+
+        // Chat functionality
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        let chatHistory = [];
+
+        function addMessage(role, content, emotion = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = role === 'user' ? '👤' : '🤖';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            if (emotion) {
+                const emotionTag = document.createElement('div');
+                emotionTag.className = 'emotion-tag';
+                emotionTag.textContent = `Emotion: ${emotion.primary_emotion} (${Math.round(emotion.confidence * 100)}%)`;
+                messageContent.appendChild(emotionTag);
+            }
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage('user', message);
+            chatHistory.push({ role: 'user', content: message });
+            
+            chatInput.value = '';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message,
+                        history: chatHistory
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage('assistant', data.response);
+                    if (data.audio) {
+                        const audio = document.createElement('audio');
+                        audio.controls = true;
+                        audio.src = data.audio;
+                        audio.style.display = 'block';
+                        audio.style.marginTop = '8px';
+                        const last = chatMessages.lastElementChild;
+                        last && last.querySelector('.message-content')?.appendChild(audio);
+                    }
+                    chatHistory.push({ role: 'assistant', content: data.response });
+                } else {
+                    addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+            } finally {
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Clear chat
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            chatMessages.innerHTML = '';
+            chatHistory = [];
+        });
+
+        // Emotional Support Button
+        document.getElementById('emotionalSupportBtn').addEventListener('click', function() {
+            window.location.href = '/emotional';
+        });
+
+        // Resource search
+        const resForm = document.getElementById('resForm');
+        const resGrade = document.getElementById('resGrade');
+        const resSubject = document.getElementById('resSubject');
+        const resResults = document.getElementById('resResults');
+
+        function escapeHtml(str){return String(str||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]))}
+        function renderResources(data){
+            if(!data||!data.links||data.links.length===0){resResults.innerHTML='<div class="alert alert-info"><span>ℹ️</span><span>No resources found. Try another selection.</span></div>';return}
+            const emojiMap={English:'📖',Maths:'🔢',Science:'🔬'}
+            let html=`<div class="card" style="margin-top:10px;">`;
+            html+=`<div class="card-header"><h4 class="card-title">${emojiMap[data.subject]||'📚'} ${escapeHtml(data.subject)} • <small>Grade: ${escapeHtml(data.grade)}</small></h4></div>`;
+            html+=`<div class="card-content"><div class="small text-muted" style="margin-bottom:8px;">Topic: ${escapeHtml(data.topic)}</div>`;
+            data.links.forEach(link=>{
+                const t=link.title||'Resource';const url=link.url||'#';const type=(link.type||'OTHER').toUpperCase();
+                const typeEmoji={VIDEO:'🎬',GAME:'🎮',WORKSHEET:'📄',NOTES:'📚',PRACTICE:'✏️'};const e=typeEmoji[type]||'📌';
+                html+=`<div class="resource-link" style="display:block">`;
+                html+=`<div class="resource-icon">${e}</div><div style="flex:1">`;
+                html+=`<div style="font-weight:600">${escapeHtml(t)}</div>`;
+                if(link.why_short) html+=`<div class="small text-muted">${escapeHtml(link.why_short)}</div>`;
+                html+=`</div><a class="btn btn-outline" href="${url}" target="_blank">Open →</a></div>`;
+            });
+            html+=`</div></div>`;
+            resResults.innerHTML=html;
+        }
+        resForm.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            resResults.innerHTML='<div class="spinner"></div>';
+            try{
+                const r=await fetch('/api/resources',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({grade:resGrade.value,subject:resSubject.value})});
+                const data=await r.json();
+                renderResources(data);
+            }catch(err){
+                resResults.innerHTML='<div class="alert alert-error"><span>❌</span><span>Error fetching resources.</span></div>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+* { box-sizing: border-box; }
+
+:root {
+	--bg: #f7fafc;
+	--text: #0f172a;
+	--muted: #475569;
+	--card: #ffffff;
+	--border: #e2e8f0;
+	--user: #dbeafe;
+	--assistant: #e2e8f0;
+	--accent: #2563eb;
+	--input-bg: #ffffff;
+	--shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+}
+
+body[data-theme="dark"] {
+	--bg: #0b1220;
+	--text: #e2e8f0;
+	--muted: #94a3b8;
+	--card: #0f172a;
+	--border: #1f2937;
+	--user: #1f3663;
+	--assistant: #1c2333;
+	--accent: #60a5fa;
+	--input-bg: #111827;
+	--shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+	font-size: 20px;
+	background: var(--bg);
+	color: var(--text);
+	transition: background 0.25s ease, color 0.25s ease;
+}
+
+.container { max-width: 920px; margin: 0 auto; padding: 24px; }
+.header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { font-size: 28px; }
+h1 { margin: 0; font-size: 26px; letter-spacing: -0.3px; }
+.subtext { color: var(--muted); margin-top: 6px; font-size: 15px; }
+
+.ghost-btn {
+	background: transparent;
+	border: 1px solid var(--border);
+	color: var(--text);
+	padding: 8px 12px;
+	border-radius: 10px;
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.messages {
+	height: 520px;
+	overflow: auto;
+	background: var(--card);
+	border: 1px solid var(--border);
+	border-radius: 14px;
+	padding: 16px;
+	margin-top: 16px;
+	box-shadow: var(--shadow);
+}
+.msg { margin-bottom: 16px; display: flex; flex-direction: column; }
+.bubble {
+	max-width: 720px;
+	border-radius: 12px;
+	padding: 14px 16px;
+	line-height: 1.65;
+	font-size: 18px;
+	box-shadow: var(--shadow);
+	border: 1px solid var(--border);
+	background: var(--assistant);
+	color: var(--text);
+}
+.bubble p { margin: 6px 0 0; }
+.bubble p:first-of-type { margin-top: 4px; }
+.user .bubble { align-self: flex-end; background: var(--user); }
+.assistant .bubble { align-self: flex-start; background: var(--assistant); }
+.meta { font-size: 12px; color: var(--muted); margin-top: 10px; }
+.input-row { display: flex; gap: 8px; margin-top: 14px; }
+.input-row input {
+	flex: 1;
+	padding: 14px 12px;
+	border-radius: 10px;
+	border: 1px solid var(--border);
+	background: var(--input-bg);
+	color: var(--text);
+	font-size: 18px;
+}
+.input-row button {
+	padding: 14px 16px;
+	border-radius: 10px;
+	border: none;
+	background: var(--accent);
+	color: #fff;
+	font-weight: 700;
+	cursor: pointer;
+	font-size: 17px;
+}
+.input-row button:disabled { opacity: 0.7; cursor: default; }
+.audio { margin-top: 10px; width: 100%; }

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Learning Platform - Test</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <span class="emoji">🎓</span>
+                <h1>Student Learning Platform</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <span id="userName">Student</span>
+                </div>
+                <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode"></button>
+            </div>
+        </div>
+
+        <!-- Test Generation Section -->
+        <div id="testGenerationSection" class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span class="card-icon">📚</span>
+                    Test Generation
+                </h2>
+            </div>
+
+            <div class="alert alert-info">
+                <span>🔄</span>
+                <span>Click the button below to generate your personalized test across multiple subjects.</span>
+            </div>
+
+            <button id="generateTestBtn" class="btn btn-primary btn-full btn-large mt-20">
+                <span>✨</span>
+                Generate Test
+            </button>
+
+            <div id="loadingSpinner" class="hidden mt-20">
+                <div class="spinner"></div>
+                <div class="loading-text">Generating your personalized test... Please wait.</div>
+            </div>
+        </div>
+
+        <!-- Test Questions Section -->
+        <div id="testQuestionsSection" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="card-icon">✍️</span>
+                        Take Your Test
+                    </h2>
+                </div>
+
+                <div class="alert alert-info">
+                    <span>📝</span>
+                    <span>Answer all questions to the best of your ability. Select one answer for each question.</span>
+                </div>
+
+                <form id="testForm">
+                    <div id="questionsContainer"></div>
+
+                    <button type="submit" class="btn btn-success btn-full btn-large mt-20">
+                        <span>📤</span>
+                        Submit Test
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Evaluation Section -->
+        <div id="evaluationSection" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span class="card-icon">📊</span>
+                        Test Results
+                    </h2>
+                </div>
+
+                <div class="alert alert-success">
+                    <span>✅</span>
+                    <span>Your test has been evaluated successfully!</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-value" id="totalQuestions">0</div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="correctAnswers">0</div>
+                        <div class="stat-label">Correct Answers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">Overall Accuracy</div>
+                    </div>
+                </div>
+
+                <div class="card mt-20">
+                    <h3 class="card-title mb-20">
+                        <span class="card-icon">📈</span>
+                        Section-wise Performance
+                    </h3>
+                    <div id="sectionPerformance"></div>
+                </div>
+
+                <div class="card mt-20">
+                    <h3 class="card-title mb-20">
+                        <span class="card-icon">💬</span>
+                        Personalized Feedback
+                    </h3>
+                    <div id="feedbackContent" class="loading-text">Generating personalized feedback...</div>
+                </div>
+
+                <button id="continueToDashboard" class="btn btn-primary btn-full btn-large mt-20">
+                    <span>🎓</span>
+                    Continue to Learning Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Load user data
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        if (userData.name) {
+            document.getElementById('userName').textContent = userData.name;
+        }
+
+        // Generate Test
+        document.getElementById('generateTestBtn').addEventListener('click', async function() {
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+            this.disabled = true;
+
+            try {
+                const response = await fetch('/api/generate-test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('testQuestions', JSON.stringify(data.questions));
+                    displayQuestions(data.questions);
+                    document.getElementById('testGenerationSection').classList.add('hidden');
+                    document.getElementById('testQuestionsSection').classList.remove('hidden');
+                } else {
+                    alert('Error generating test. Please try again.');
+                    this.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating test. Please try again.');
+                this.disabled = false;
+            } finally {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+            }
+        });
+
+        // Display Questions
+        function displayQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            Object.keys(questions).forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'test-section';
+                
+                const sectionTitle = document.createElement('h3');
+                sectionTitle.className = 'section-title';
+                sectionTitle.innerHTML = `<span>📌</span> ${section}`;
+                sectionDiv.appendChild(sectionTitle);
+
+                questions[section].forEach((q, idx) => {
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'question-card';
+                    
+                    const questionText = document.createElement('p');
+                    questionText.className = 'question-text';
+                    const questionNumber = document.createElement('strong');
+                    questionNumber.textContent = `Q${idx + 1}: `;
+                    questionText.appendChild(questionNumber);
+                    questionText.appendChild(document.createTextNode(q.question));
+                    questionCard.appendChild(questionText);
+
+                    const choicesDiv = document.createElement('div');
+                    choicesDiv.className = 'choices';
+
+                    q.choices.forEach((choice, choiceIdx) => {
+                        const choiceOption = document.createElement('div');
+                        choiceOption.className = 'choice-option';
+                        
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `${section}_${idx}`;
+                        radio.value = choice;
+                        radio.id = `${section}_${idx}_${choiceIdx}`;
+                        radio.required = true;
+                        
+                        const label = document.createElement('label');
+                        label.htmlFor = radio.id;
+                        label.textContent = choice;
+                        
+                        choiceOption.appendChild(radio);
+                        choiceOption.appendChild(label);
+                        choicesDiv.appendChild(choiceOption);
+                    });
+
+                    questionCard.appendChild(choicesDiv);
+                    sectionDiv.appendChild(questionCard);
+                });
+
+                container.appendChild(sectionDiv);
+            });
+        }
+
+        // Submit Test
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const answers = {};
+            
+            for (let [key, value] of formData.entries()) {
+                answers[key] = value;
+            }
+
+            try {
+                const response = await fetch('/api/evaluate-test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userData,
+                        answers,
+                        questions: JSON.parse(localStorage.getItem('testQuestions'))
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayEvaluation(data.evaluation);
+                    document.getElementById('testQuestionsSection').classList.add('hidden');
+                    document.getElementById('evaluationSection').classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                } else {
+                    alert('Error evaluating test. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error evaluating test. Please try again.');
+            }
+        });
+
+        // Basic HTML escape to prevent injection
+        function escapeHTML(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        // Format feedback text (markdown-like) into readable HTML with headings and lists
+        function formatFeedback(feedbackText) {
+            if (!feedbackText || typeof feedbackText !== "string") {
+                return "<p>Great job on completing the test!</p>";
+            }
+            const lines = feedbackText.split(/\r?\n/);
+            let html = "";
+            let inList = false;
+
+            const closeList = () => {
+                if (inList) {
+                    html += "</ul>";
+                    inList = false;
+                }
+            };
+
+            for (const rawLine of lines) {
+                const line = rawLine.trim();
+                if (!line) {
+                    closeList();
+                    continue;
+                }
+
+                const headingMatch = line.match(/^\*\*(.+?)\*\*:?/);
+                if (headingMatch) {
+                    closeList();
+                    html += `<h4>${escapeHTML(headingMatch[1])}</h4>`;
+                    continue;
+                }
+
+                if (line.startsWith("- ")) {
+                    if (!inList) {
+                        html += "<ul>";
+                        inList = true;
+                    }
+                    html += `<li>${escapeHTML(line.slice(2))}</li>`;
+                    continue;
+                }
+
+                closeList();
+                html += `<p>${escapeHTML(line)}</p>`;
+            }
+
+            closeList();
+            return html || "<p>Great job on completing the test!</p>";
+        }
+
+        // Display Evaluation
+        function displayEvaluation(evaluation) {
+            document.getElementById('totalQuestions').textContent = evaluation.accuracy.total_questions;
+            document.getElementById('correctAnswers').textContent = evaluation.accuracy.total_correct;
+            document.getElementById('accuracy').textContent = evaluation.accuracy.overall_accuracy + '%';
+
+            // Section performance
+            const sectionPerf = document.getElementById('sectionPerformance');
+            sectionPerf.innerHTML = '';
+            
+            Object.keys(evaluation.accuracy.section_stats).forEach(section => {
+                const stats = evaluation.accuracy.section_stats[section];
+                const perfDiv = document.createElement('div');
+                perfDiv.className = 'progress-container';
+                
+                perfDiv.innerHTML = `
+                    <div class="progress-label">
+                        <strong>${section}</strong>
+                        <span>${stats.correct}/${stats.total} (${stats.accuracy}%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${stats.accuracy}%"></div>
+                    </div>
+                `;
+                
+                sectionPerf.appendChild(perfDiv);
+            });
+
+            // Feedback with improved formatting
+            const feedbackDiv = document.getElementById('feedbackContent');
+            feedbackDiv.innerHTML = formatFeedback(evaluation.feedback);
+            
+            // Store evaluation
+            localStorage.setItem('evaluation', JSON.stringify(evaluation));
+        }
+
+        // Continue to Dashboard
+        document.getElementById('continueToDashboard').addEventListener('click', function() {
+            window.location.href = '/dashboard';
+        });
+    </script>
+</body>
+</html>

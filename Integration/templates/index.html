@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Learning Platform - Registration</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <span class="emoji">🎓</span>
+                <h1>Student Learning Platform</h1>
+            </div>
+            <button id="darkModeToggle" class="dark-mode-toggle" aria-label="Toggle dark mode"></button>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="card" style="max-width: 800px; margin: 0 auto;">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span class="card-icon">📝</span>
+                    Student Registration
+                </h2>
+            </div>
+
+            <div class="alert alert-info">
+                <span>📋</span>
+                <span>Please fill in your details to begin your learning journey!</span>
+            </div>
+
+            <form id="registrationForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="studentName">
+                            <span>👤</span>
+                            Student Name
+                        </label>
+                        <input 
+                            type="text" 
+                            id="studentName" 
+                            class="form-input" 
+                            placeholder="Enter your full name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="studentAge">
+                            <span>🎂</span>
+                            Age
+                        </label>
+                        <input 
+                            type="number" 
+                            id="studentAge" 
+                            class="form-input" 
+                            min="5" 
+                            max="18" 
+                            value="10"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="studentGrade">
+                            <span>📚</span>
+                            Grade
+                        </label>
+                        <select id="studentGrade" class="form-select" required>
+                            <option value="">Select grade</option>
+                            <option value="1st Grade">1st Grade</option>
+                            <option value="2nd Grade">2nd Grade</option>
+                            <option value="3rd Grade">3rd Grade</option>
+                            <option value="4th Grade">4th Grade</option>
+                            <option value="5th Grade">5th Grade</option>
+                            <option value="6th Grade">6th Grade</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-large mt-20">
+                    <span>✅</span>
+                    Register & Start Test
+                </button>
+            </form>
+        </div>
+
+        <!-- Features Section -->
+        <div class="stats-grid mt-20">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-label">Personalized Tests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-label">AI Chatbot Support</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💭</div>
+                <div class="stat-label">Emotional Support</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+    <script>
+        // Handle registration form submission
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                name: document.getElementById('studentName').value,
+                age: document.getElementById('studentAge').value,
+                grade: document.getElementById('studentGrade').value
+            };
+            
+            // Store user data in localStorage
+            localStorage.setItem('userData', JSON.stringify(userData));
+            
+            // Redirect to test generation
+            window.location.href = '/test';
+        });
+    </script>
+</body>
+</html>
