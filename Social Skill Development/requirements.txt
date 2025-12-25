@@ -1,0 +1,16 @@
+numpy
+opencv-python
+torch
+transformers
+pillow
+
+SpeechRecognition
+pyaudio
+pyttsx3
+
+sentencepiece
+fastapi
+uvicorn
+
+# For emotion detection
+opencv-python-headlessmediapipe

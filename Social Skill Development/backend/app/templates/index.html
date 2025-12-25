@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Skills Development</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Social Skills Development</h1>
+            <p>Interactive Learning Platform</p>
+        </header>
+
+        <main>
+            <!-- Welcome Section -->
+            <section id="welcomeSection" class="section active">
+                <div class="card">
+                    <h2>Welcome!</h2>
+                    <p>This platform helps you practice and improve your social skills through voice-based questions and AI feedback.</p>
+                    <button onclick="startAssessment()" class="btn btn-primary">Start Session</button>
+                </div>
+            </section>
+
+            <!-- Session Section -->
+            <section id="assessmentSection" class="section">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Question</h3>
+                        <p id="questionText" class="question-text">Loading...</p>
+                        <div id="imageContainer" style="display: none; margin-top: 15px; text-align: center;">
+                            <img id="questionImage" src="" alt="Question image" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        </div>
+                        <div id="skillsContainer" style="margin-top: 15px; display: none;">
+                            <p style="font-weight: 600; font-size: 14px; margin-bottom: 8px;">Skills Assessed:</p>
+                            <div id="skillsTag"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="card" style="margin-bottom: 12px;">
+                            <h3>😊 Emotion & Engagement</h3>
+                            <div style="text-align: center; padding: 30px 12px;">
+                                <p id="emotionDisplay" style="font-size: 2rem; margin-bottom: 8px; font-weight: 600;">-</p>
+                                <p id="confidenceDisplay" style="font-size: 1rem; color: #666;">Loading...</p>
+                                <p id="engagementLevel" style="font-size: 1rem; color: #444; margin-top: 6px;">Engagement: -</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Your Answer</h3>
+                            <p id="answerText" style="font-style: italic; color: #666; min-height: 60px; padding: 12px; background: #f5f5f5; border-radius: 6px; font-size: 14px;">Listening...</p>
+                            <button onclick="playQuestion()" class="btn btn-secondary" style="margin-top: 12px; width: 100%;">Play Question</button>
+                            <button onclick="stopListening()" class="btn btn-secondary" style="margin-top: 8px; width: 100%; background: #ff6b6b;">Stop Listening</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feedback Section -->
+            <section id="feedbackSection" class="section">
+                <div class="card">
+                    <h2>Feedback</h2>
+                    <div style="background: #f0f7ff; padding: 16px; border-radius: 8px; border-left: 4px solid #0066cc; margin: 20px 0;">
+                        <p id="feedbackText" style="font-size: 14px; line-height: 1.6; color: #333;"></p>
+                    </div>
+                    <button onclick="nextQuestion()" class="btn btn-primary" style="width: 100%; margin-top: 12px;">Continue</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Social Skills Development © 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentQuestion = null;
+        let studentAnswer = null;
+        let recognition = null;
+        let isListening = false;
+        let emotionInterval = null;
+
+        // Initialize Speech Recognition
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Your browser doesn't support speech recognition. Use Chrome, Edge, or Safari.");
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isListening = true;
+                document.getElementById('answerText').textContent = 'Listening...';
+                document.getElementById('answerText').style.color = '#666';
+            };
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                document.getElementById('answerText').textContent = transcript || 'Listening...';
+                if (event.results[event.results.length - 1].isFinal) {
+                    studentAnswer = transcript;
+                    setTimeout(() => processAnswer(), 500);
+                }
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+            };
+        }
+
+        // Poll emotion detection
+        function startEmotionDetection() {
+            emotionInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/emotion');
+                    const data = await response.json();
+                    if (data.success && data.emotion) {
+                        document.getElementById('emotionDisplay').textContent = data.emotion;
+                        document.getElementById('confidenceDisplay').textContent = `Confidence: ${(data.confidence * 100).toFixed(0)}%`;
+                        if (typeof data.engagement_level !== 'undefined' && data.engagement_level !== null) {
+                            document.getElementById('engagementLevel').textContent = `Engagement: ${data.engagement_level}`;
+                        }
+                    }
+                } catch (e) {
+                    console.log('Emotion detection unavailable');
+                }
+            }, 1000);
+        }
+
+        function stopEmotionDetection() {
+            if (emotionInterval) clearInterval(emotionInterval);
+        }
+
+        async function startAssessment() {
+            initSpeechRecognition();
+            startEmotionDetection();
+            
+            const response = await fetch('/api/question');
+            const data = await response.json();
+            if (data.success) {
+                currentQuestion = data;
+                displayQuestion(data);
+                showSection('assessmentSection');
+                setTimeout(() => playQuestion(), 800);
+            }
+        }
+
+        function displayQuestion(q) {
+            document.getElementById('questionText').textContent = q.question;
+            document.getElementById('answerText').textContent = 'Click "Play Question" to start.';
+            document.getElementById('answerText').style.color = '#999';
+            
+            if (q.image) {
+                document.getElementById('questionImage').src = q.image;
+                document.getElementById('imageContainer').style.display = 'block';
+            } else {
+                document.getElementById('imageContainer').style.display = 'none';
+            }
+
+            if (q.skills && q.skills.length > 0) {
+                document.getElementById('skillsTag').innerHTML = q.skills.map(s => 
+                    `<span style="display: inline-block; background: #e0e7ff; color: #0066cc; padding: 6px 12px; border-radius: 16px; font-size: 13px; margin-right: 8px; margin-bottom: 8px;">${s}</span>`
+                ).join('');
+                document.getElementById('skillsContainer').style.display = 'block';
+            } else {
+                document.getElementById('skillsContainer').style.display = 'none';
+            }
+        }
+
+        async function playQuestion() {
+            if (!currentQuestion) return;
+            await fetch('/api/speak', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text: currentQuestion.question})
+            });
+            setTimeout(() => {
+                if (recognition) recognition.start();
+            }, 300);
+        }
+
+        function stopListening() {
+            if (recognition) recognition.stop();
+            isListening = false;
+        }
+
+        async function processAnswer() {
+            if (!studentAnswer || studentAnswer.trim() === '') {
+                alert('Please provide an answer.');
+                return;
+            }
+            const response = await fetch('/api/evaluate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    question: currentQuestion.question,
+                    skills: currentQuestion.skills,
+                    answer: studentAnswer
+                })
+            });
+            const data = await response.json();
+            document.getElementById('feedbackText').textContent = data.feedback;
+            showSection('feedbackSection');
+            stopEmotionDetection();
+        }
+
+        function nextQuestion() {
+            studentAnswer = null;
+            startAssessment();
+        }
+
+        function retryQuestion() {
+            studentAnswer = null;
+            document.getElementById('answerText').textContent = 'Click "Play Question" to start.';
+            showSection('assessmentSection');
+            setTimeout(() => playQuestion(), 500);
+        }
+
+        function exitAssessment() {
+            if (recognition) recognition.stop();
+            stopEmotionDetection();
+            showSection('welcomeSection');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        initSpeechRecognition();
+    </script>
+</body>
+</html>
