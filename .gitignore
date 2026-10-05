@@ -1,0 +1,75 @@
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.eggs/
+.Python
+pip-wheel-metadata/
+pip-log.txt
+
+# Virtual environments and local configuration
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Jupyter and local tooling
+.ipynb_checkpoints/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs and runtime output
+Logs/
+**/Logs/
+*.log
+*.pid
+
+# Generated media and application data
+audio_files/
+**/audio_files/
+*.wav
+*.mp3
+data/
+**/data/
+uploads/
+downloads/
+
+# Model and experiment output
+out/
+**/out/
+checkpoints/
+**/checkpoints/
+wandb/
+mlruns/
+.cache/
+
+# Node.js dependencies and frontend build output
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
+.parcel-cache/
+.vite/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS and Windows files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
